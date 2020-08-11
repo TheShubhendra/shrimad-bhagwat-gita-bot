@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 TOKEN = os.environ.get("TOKEN")
 PORT = os.environ.get("PORT",5000)
 def start(update,context):
-    message = "Hi!! {} , To get random verse of Srimadbhagavat Gita send /verse, to get a specific verse send /verse <verse no.> <chapter no.> .\n Examples : /verse 1 4 (verse 1 from chapter 2)\n ,/verse 1 (random verse from chapter 1)\n ,/verse (random verse)\nBot developed by @TheShubhendra \nContent credit : www.gitasupersite.iitk.ac.in".format(update.message.from_user.first_name)
+    message = "Hi!! {} , To get random verse of Srimadbhagavat Gita send /verse.To get a specific verse send /verse <verse no.> <chapter no.> .\n \nadd 'hi' or 'en' or both with command to get translation.\nExamples : /verse 1 4 (verse 1 from chapter 2)\n ,/verse 1 (random verse from chapter 1)\n ,/verse (random verse)\nBot developed by @TheShubhendra \nContent credit : www.gitasupersite.iitk.ac.in".format(update.message.from_user.first_name)  
     context.bot.send_message(update.message.chat_id,message)
   
 
