@@ -37,18 +37,19 @@ def verse(update,context):
   con = soup.select("font")
   for i in range(1,(1+hi+en)*2,2):
     context.bot.send_message(update.message.chat_id,con[i].getText())
-    
-  
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-updater = Updater(TOKEN,use_context=True)
-dispatcher = updater.dispatcher
+def main():  
+  logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+  updater = Updater(TOKEN,use_context=True)
+  dispatcher = updater.dispatcher
 
-handler = CommandHandler('verse',verse)
-start_handler = CommandHandler('start',start)
-dispatcher.add_handler(handler)
-dispatcher.add_handler(start_handler)
+  handler = CommandHandler('verse',verse)
+  start_handler = CommandHandler('start',start)
+  dispatcher.add_handler(handler)
+  dispatcher.add_handler(start_handler)
 
-updater.start_webhook(listen="0.0.0.0",port=int(PORT),url_path=TOKEN)
-updater.bot.setWebhook("https://shrimad-bhagwat-gita-bot.herokuapp.com/" + TOKEN)
+  updater.start_webhook(listen="0.0.0.0",port=int(PORT),url_path=TOKEN)
+  updater.bot.setWebhook("https://shrimad-bhagwat-gita-bot.herokuapp.com/" + TOKEN)
 
-updater.idle()
+  updater.idle()
+if __name__ == '__main__':
+  main()
