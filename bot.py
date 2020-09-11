@@ -1,60 +1,51 @@
-from requests import get
-from telegram.ext import Updater , CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater ,CommandHandler, MessageHandler, Filters
 import logging
 import random
 import os
-from bs4 import BeautifulSoup
+import pygita
 TOKEN = os.environ.get("TOKEN")
 PORT = os.environ.get("PORT",5000)
+CLIENT_ID = os.environ.get("CLIENT_ID")
+CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
+
 def start(update,context):
-    message = "Hi!! {} , To get random verse of Srimadbhagavad Gita send /verse.To get a specific verse send /verse <verse no.> <chapter no.> .\n \nadd 'hi' or 'en' or both with command to get translation and 'hic' and 'enc' for commentaries also.\nExamples : /verse 1 4 (verse 1 from chapter 2)\n ,/verse 1 (random verse from chapter 1)\n ,/verse (random verse)\nBot developed by @TheShubhendra \nContent credit : www.gitasupersite.iitk.ac.in".format(update.message.from_user.first_name)  
+    message = "Hi!! {} , To get random verse of Srimadbhagavad Gita send /verse.To get a specific verse send /verse <chapter no> <verse no>.\n \nadd 'hi' or 'en' to get meaning also. \nExamples : /verse 1 4 (verse 1 from chapter 2)\n ,/verse 1 (random verse from chapter 1)\n ,/verse (random verse)\nBot developed by @TheShubhendra".format(update.message.from_user.first_name)  
     context.bot.send_message(update.message.chat_id,message)
 
 def verse(update,context):
-  text = update.message.text
-  print(text)
+  text = update.message.text.lower()
   text=text.split()
-  hi=en=hic=enc=0
-  if "hi" in text:
-   text.remove("hi")
-   hi =  1
-  if "en" in text:
-   en = 1
-   text.remove("en")
-  if "hic" in text:
-   hic = 1
-   text.remove("hic")
-  if "enc" in text:
-   enc = 1
-   text.remove("enc")
-  if len(text)==1:
-    v = random.randint(1,48)
-    c = random.randint(1,18)
-  elif len(text) == 2:
-    v = random.randint(1,48)
-    c = int(text[1])
+  numbers = [i for i in text if i.isdigit()]
+  verse_number = numbers[1]
+  chapter_number = numbers [0]
+  if verse_number and chapter_number:
+    if "hi" in text:
+      verse = pygita.get_verse(chapter_number,verse_number,language="hi")
+      update.message.reply_text(verse.text+"\n"+verse.meaning)
+    elif "en" in text:
+      verse = pygita.get_verse(chapter_number,verse_number,language="en")
+      update.message.reply_text(verse.text+"\n"+verse.meaning)
+    else:
+      verse = pygita.get_verse(chapter_number,verse_number)
+      update.message.reply_text(verse.text)
   else:
-    v = int(text[1])
-    c = int(text[2])
-  
-  url = "https://www.gitasupersite.iitk.ac.in/srimad?language=dv&field_chapter_value={}&field_nsutra_value={}&htrskd={}&etsiva={}&hcchi={}&ecsiva={}".format(c,v,hi,en,hic,enc)
-  soup = BeautifulSoup(get(url).text)
-  con = soup.select("font")
-  for i in range(1,(1+hi+en+hic+enc)*2,2):
-    context.bot.send_message(update.message.chat_id,con[i].getText())
+    update.message.reply_text("Please provide verse and chapter number properly.")
 def main():  
+  
   logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+  pygita.auth(CLIENT_ID,CLIENT_SECRET)
   updater = Updater(TOKEN,use_context=True)
   dispatcher = updater.dispatcher
 
-  handler = CommandHandler('verse',verse)
+  handler = CommandHandler(["verse","verse_hi","verse_en"],verse)
+  
   start_handler = CommandHandler('start',start)
   dispatcher.add_handler(handler)
   dispatcher.add_handler(start_handler)
 
   updater.start_webhook(listen="0.0.0.0",port=int(PORT),url_path=TOKEN)
   updater.bot.setWebhook("https://shrimad-bhagwat-gita-bot.herokuapp.com/" + TOKEN)
-#  updater.start_polling()
+  #updater.start_polling()
   updater.idle()
 if __name__ == '__main__':
   main()
