@@ -16,8 +16,14 @@ def verse(update,context):
   text = update.message.text.lower()
   text=text.split()
   numbers = [i for i in text if i.isdigit()]
-  verse_number = numbers[1]
-  chapter_number = numbers [0]
+  try:
+    verse_number = numbers[1]
+  except:
+    pass
+  try:
+    chapter_number = numbers [0]
+  except:
+    pass
   if verse_number and chapter_number:
     if "hi" in text:
       verse = pygita.get_verse(chapter_number,verse_number,language="hi")
